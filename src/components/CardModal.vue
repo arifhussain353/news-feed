@@ -64,7 +64,8 @@
       :disabled="$v.$invalid"
       @click="changeData()"
     >
-      Add
+      <template v-if="type === 'edit'">Update</template>
+      <template v-else>Add</template>
     </b-button>
   </b-modal>
 </template>
