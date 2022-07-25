@@ -17,17 +17,12 @@
           <Search @searchByText="filterValue = $event" />
         </div>
       </div>
-      <template v-if="cards.length">
+      <template v-if="filteredCards.length">
         <CardList
           @removeCard="removeCard"
           @editCard="editCard"
           :cards="filteredCards"
         />
-        <div class="no-data p-4 text-center" v-if="!filteredCards.length">
-          <p class="mb-0">
-            No card found with your search. Try different text.
-          </p>
-        </div>
       </template>
 
       <div class="no-data p-4 text-center" v-else>
@@ -55,44 +50,13 @@ export default {
       type: "",
       selectedItem: {},
       filterValue: "",
-      cards: [],
     };
   },
-  created() {
-    this.cards = this.$store.getters.getListItems;
-  },
+
   computed: {
     filteredCards() {
-      //for search filter
-      if (this.filterValue.filterType === "search") {
-        if (!this.filterValue.value.length) return this.cards;
-        return this.cards.filter((card) => {
-          return card.title
-            .toLowerCase()
-            .includes(this.filterValue.value.toLowerCase());
-        });
-      } else if (this.filterValue.filterType === "sort") {
-        //for sorting filter
-        //using spread syntax so data will not mutate by sort function
-        return [...this.cards].sort((a, b) => {
-          //Ascending Order
-          if (this.filterValue.value.order === "asc") {
-            return a[this.filterValue.value.text] >
-              b[this.filterValue.value.text]
-              ? 1
-              : -1;
-          } else {
-            //Descending Order
-            return a[this.filterValue.value.text] >
-              b[this.filterValue.value.text]
-              ? -1
-              : 1;
-          }
-        });
-      } else {
-        //for default on load
-        return this.cards;
-      }
+      //passing filter arguments
+      return this.$store.getters.getListItems(this.filterValue);
     },
   },
   methods: {
@@ -106,9 +70,8 @@ export default {
       this.$bvModal.show("edit-modal");
     },
     removeCard(index) {
-      this.cards.splice(index, 1);
       //upadte state
-      this.$store.dispatch("SET_LIST_ITEMS", this.cards);
+      this.$store.dispatch("SET_LIST_ITEMS", { index: index, vm: this });
     },
   },
 };

@@ -119,6 +119,7 @@ export default {
   },
   methods: {
     validateState(name) {
+      //calling function on each field validation
       const { $dirty, $error } = this.$v[name];
       return $dirty ? !$error : null;
     },
@@ -139,46 +140,22 @@ export default {
     },
     changeData() {
       this.$v.$touch();
-      //get current added cards
-      let cards = this.$store.getters.getListItems;
       //check all input fields validation
       if (this.$v.$anyError) {
         return;
       }
-      //add new card
-      if (this.type === "add") {
-        let data = {
-          title: this.title,
-          author: this.author,
-          body: this.body,
-          id: Date.now(),
-        };
-        cards.push(data);
-        this.$bvToast.toast("New card successfully added.", {
-          title: "Successfully added!",
-          toaster: "b-toaster-bottom-right",
-          variant: "success",
-        });
-        //upadte state
-        this.$store.dispatch("SET_LIST_ITEMS", cards);
-      } else {
-        //edit current card
-        cards.map((card) => {
-          if (card.id === this.selectedData.id) {
-            card.title = this.title;
-            card.author = this.author;
-            card.body = this.body;
-          }
-        });
-        this.$bvToast.toast("Card successfully updated.", {
-          title: "Successfully updated!",
-          toaster: "b-toaster-bottom-right",
-          variant: "success",
-        });
-        //upadte state
-        this.$store.dispatch("SET_LIST_ITEMS", cards);
-      }
-      this.$bvModal.hide("edit-modal");
+      let data = {
+        title: this.title,
+        author: this.author,
+        body: this.body,
+      };
+      //set data to store
+      this.$store.dispatch("SET_LIST_ITEMS", {
+        type: this.type,
+        data: data,
+        selectedData: this.selectedData,
+        vm: this, //bootstrap-vue toast is not using this._vm prototype
+      });
     },
   },
 };
